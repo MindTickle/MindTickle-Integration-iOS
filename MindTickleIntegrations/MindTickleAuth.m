@@ -58,9 +58,15 @@
     
     BranchLinkProperties *linkProperties = [[BranchLinkProperties alloc] init];
     
-    [branchUniversalObject getShortUrlWithLinkProperties:linkProperties andCallback:^(NSString *url, NSError *error) {
-        if (!error && url) {
-            [[UIApplication sharedApplication] openURL:url];
+    [branchUniversalObject getShortUrlWithLinkProperties:linkProperties andCallback:^(NSString *urlString, NSError *error) {
+        if (!error && urlString) {
+            NSURL* url = [NSURL URLWithString:urlString];
+            if([[UIApplication sharedApplication] canOpenURL:url]) {
+                [[UIApplication sharedApplication] openURL:url];
+            }
+            else {
+                NSLog(@"can not open MindTickle App from url %@", urlString);
+            }
         }
     }];
 }
