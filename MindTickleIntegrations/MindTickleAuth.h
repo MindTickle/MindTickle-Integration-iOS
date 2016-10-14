@@ -10,7 +10,9 @@
 
 @interface MindTickleAuth : NSObject
 
-- (instancetype) initWithAccessKey:(NSString*) accessKey secretKey:(NSString*) secretKey;
-- (NSString*) generateTokenFor:(NSDictionary*) userObject;
+- (instancetype)initWithDomain:(NSString *)domain email:(NSString*) email;
+- (instancetype) initWithDomain:(NSString*) accessKey secretKey:(NSString*) secretKey email:(NSString*) email;
+
+- (void) openMindTickle;
 
 @end
