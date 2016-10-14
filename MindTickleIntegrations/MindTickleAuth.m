@@ -47,7 +47,11 @@
 }
 
 - (void) openMindTickle {
+    //set branch key
+    Branch* br = [Branch getInstance:@"key_live_lptauUbo5oklZUvxxuWgEgplAEjG82fa"];
+    
     BranchUniversalObject *branchUniversalObject = [[BranchUniversalObject alloc] initWithCanonicalIdentifier:@"mindtickle"];
+    
     branchUniversalObject.title = @"MindTickle";
     branchUniversalObject.contentDescription = [NSString stringWithFormat:@"Sales enablement done right!"];
     [branchUniversalObject addMetadataKey:@"token" value:[self generate]];
