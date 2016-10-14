@@ -43,10 +43,11 @@
 }
 
 - (NSString*)generate {
-    return [JWTBuilder encodePayload:@{@"identifier":@{@"email":self.email}, @"domain":self.domain}].secret(self.secretKey).algorithm([JWTAlgorithmFactory algorithmByName:@"RS512"]).encode;
+    return [JWTBuilder encodePayload:@{@"identifier":@{@"email":self.email}, @"domain":self.domain}].secret(self.secretKey).algorithm([JWTAlgorithmFactory algorithmByName:@"HS512"]).encode;
 }
 
 - (void) openMindTickle {
+    NSString* token = [self generate];
     //set branch key
     Branch* br = [Branch getInstance:@"key_live_lptauUbo5oklZUvxxuWgEgplAEjG82fa"];
     
@@ -54,12 +55,14 @@
     
     branchUniversalObject.title = @"MindTickle";
     branchUniversalObject.contentDescription = [NSString stringWithFormat:@"Sales enablement done right!"];
-    [branchUniversalObject addMetadataKey:@"token" value:[self generate]];
+    [branchUniversalObject addMetadataKey:@"access_token" value:token];
+    [branchUniversalObject addMetadataKey:@"domain" value:self.domain];
     
     BranchLinkProperties *linkProperties = [[BranchLinkProperties alloc] init];
     
     [branchUniversalObject getShortUrlWithLinkProperties:linkProperties andCallback:^(NSString *urlString, NSError *error) {
         if (!error && urlString) {
+            NSLog(@"url is %@", urlString);
             NSURL* url = [NSURL URLWithString:urlString];
             if([[UIApplication sharedApplication] canOpenURL:url]) {
                 [[UIApplication sharedApplication] openURL:url];
