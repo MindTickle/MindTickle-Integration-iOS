@@ -12,51 +12,65 @@
 #import "BranchUniversalObject.h"
 #import "BranchLinkProperties.h"
 
-@interface MindTickleAuth()
+static NSString* __domain;
+static NSString* __jwtToken;
+static NSString* __secretKey;
+static NSString* __accessToken;
+static NSURL* __link;
+static BOOL __branchError = NO;
+static BOOL __openPending = NO;
 
-@property (nonatomic) NSString* domain;
-@property (nonatomic) NSString* secretKey;
-@property (nonatomic) NSString* email;
+@interface MindTickleAuth()
 
 @end
 
 @implementation MindTickleAuth
 
-- (instancetype)initWithDomain:(NSString *)domain email:(NSString *)email {
-    self = [super init];
-    if(self) {
-        _domain = domain;
-        _secretKey = nil;
-        _email = email;
-    }
-    return self;
+//secure methods
++ (void) initWithDomain:(NSString *)domain {
+    __domain = domain;
+}
++ (void) initWithDomain:(NSString *)domain accessToken:(NSString *)accessToken {
+    __domain = domain;
+    __accessToken = accessToken;
+    [MindTickleAuth onAccessToken];
+}
++ (void) setAccessToken:(NSString *)accessToken {
+    __accessToken = accessToken;
+    [MindTickleAuth onAccessToken];
 }
 
-- (instancetype)initWithDomain:(NSString *)domain secretKey:(NSString *)secretKey email:(NSString *)email {
-    self = [super init];
-    if(self) {
-        _domain = domain;
-        _secretKey = secretKey;
-        _email = email;
-    }
-    return self;
+//unsecure methods. keeping secret key in client code is not safe
++ (void) initWithDomain:(NSString *)domain secretKey:(NSString *)secretKey {
+    __domain = domain;
+    __secretKey = secretKey;
+}
++ (void) initWithDomain:(NSString *)domain secretKey:(NSString *)secretKey email:(NSString *)email {
+    __domain = domain;
+    __secretKey = secretKey;
+    __accessToken = [MindTickleAuth generateTokenForEmail:email];
+    [MindTickleAuth onAccessToken];
+}
++ (void) setEmail:(NSString *)email {
+    __accessToken = [MindTickleAuth generateTokenForEmail:email];
+    [MindTickleAuth onAccessToken];
 }
 
-- (NSString*)generate {
-    return [JWTBuilder encodePayload:@{@"identifier":@{@"email":self.email}, @"domain":self.domain}].secret(self.secretKey).algorithm([JWTAlgorithmFactory algorithmByName:@"HS512"]).encode;
++ (NSString*)generateTokenForEmail:(NSString*) email {
+    return [JWTBuilder encodePayload:@{@"identifier":@{@"email":email}, @"domain":__domain}].secret(__secretKey).algorithm([JWTAlgorithmFactory algorithmByName:@"HS512"]).encode;
 }
 
-- (void) openMindTickle {
-    NSString* token = [self generate];
-    //set branch key
++ (void) onAccessToken {
+    __openPending = NO;
+    
     Branch* br = [Branch getInstance:@"key_live_lptauUbo5oklZUvxxuWgEgplAEjG82fa"];
     
     BranchUniversalObject *branchUniversalObject = [[BranchUniversalObject alloc] initWithCanonicalIdentifier:@"mindtickle"];
     
     branchUniversalObject.title = @"MindTickle";
     branchUniversalObject.contentDescription = [NSString stringWithFormat:@"Sales enablement done right!"];
-    [branchUniversalObject addMetadataKey:@"access_token" value:token];
-    [branchUniversalObject addMetadataKey:@"domain" value:self.domain];
+    [branchUniversalObject addMetadataKey:@"access_token" value:__accessToken];
+    [branchUniversalObject addMetadataKey:@"domain" value:__domain];
     
     BranchLinkProperties *linkProperties = [[BranchLinkProperties alloc] init];
     
@@ -64,14 +78,41 @@
         if (!error && urlString) {
             NSLog(@"url is %@", urlString);
             NSURL* url = [NSURL URLWithString:urlString];
-            if([[UIApplication sharedApplication] canOpenURL:url]) {
-                [[UIApplication sharedApplication] openURL:url];
-            }
-            else {
-                NSLog(@"can not open MindTickle App from url %@", urlString);
+            __link = url;
+            
+            if(__openPending) {
+                if([[UIApplication sharedApplication] canOpenURL:__link]) {
+                    [[UIApplication sharedApplication] openURL:__link];
+                }
+                else {
+                    NSLog(@"can not open MindTickle App from url %@", __link);
+                }
+                __openPending = NO;
             }
         }
+        else {
+            __branchError = YES;
+        }
     }];
+}
++ (BOOL) openMindTickle {
+    if(__domain == nil || __accessToken) {
+        NSLog(@"unsufficiet parameters to open MindTickle");
+        return NO;
+    }
+    if(__link == nil) {
+        __openPending = YES;
+        return YES;
+    }
+    if([[UIApplication sharedApplication] canOpenURL:__link]) {
+        [[UIApplication sharedApplication] openURL:__link];
+        return YES;
+    }
+    else {
+        NSLog(@"can not open MindTickle App from url %@", __link);
+        return NO;
+    }
+    
 }
 
 @end

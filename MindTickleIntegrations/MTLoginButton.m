@@ -7,6 +7,7 @@
 //
 
 #import "MTLoginButton.h"
+#import "MindTickleAuth.h"
 
 @implementation MTLoginButton
 
@@ -18,4 +19,19 @@
 }
 */
 
++ (id)buttonWithFrame:(CGRect)frame {
+    return [[self alloc] initWithFrame:frame];
+}
+
+- (id)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        [self addTarget:self action:@selector(onTap) forControlEvents:UIControlEventTouchUpInside];
+        UIImage * buttonImage = [UIImage imageNamed:@"logo"];
+        [self setImage:buttonImage forState:UIControlStateNormal];
+    }
+    return self;
+}
+- (void) onTap {
+    [MindTickleAuth openMindTickle];
+}
 @end
