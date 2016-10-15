@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "MindTickleIntegrations"
-  s.version      = "0.0.1"
+  s.version      = "1.0"
   s.summary      = "MindTickle's sdk provides you a way to integrate MindTickle with your own app and launch from within your app."
 
   # This description is used to generate tags and improve search results.

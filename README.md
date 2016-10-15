@@ -4,7 +4,7 @@
 
 - Add following to your podfile
 ```
-pod 'MindTickleIntegrations', :git => 'git@github.com:MindTickle/MindTickle-Integration-iOS.git', :tag=> '1.0'
+pod 'MindTickleIntegrations', '1.0'
 ```
 - Run `pod install`
 - Include following header and initialize MindTickle's in your appdelegate.h file and library 
