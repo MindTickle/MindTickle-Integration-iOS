@@ -20,14 +20,27 @@
 */
 
 + (id)buttonWithFrame:(CGRect)frame {
+    NSLog(@"button with frame");
     return [[self alloc] initWithFrame:frame];
 }
 
+- (id) initWithCoder:(NSCoder *)aDecoder {
+    NSLog(@"init with coder");
+    if (self = [super initWithCoder:aDecoder]) {
+        [self addTarget:self action:@selector(onTap) forControlEvents:UIControlEventTouchUpInside];
+        UIImage * buttonImage = [UIImage imageNamed:@"mindtickle_logo"];
+        [self setBackgroundImage:buttonImage forState:UIControlStateNormal];
+        [self setTitle:@"" forState:UIControlStateNormal];
+    }
+    return self;
+}
 - (id)initWithFrame:(CGRect)frame {
+    NSLog(@"init with frame");
     if (self = [super initWithFrame:frame]) {
         [self addTarget:self action:@selector(onTap) forControlEvents:UIControlEventTouchUpInside];
-        UIImage * buttonImage = [UIImage imageNamed:@"logo"];
-        [self setImage:buttonImage forState:UIControlStateNormal];
+        UIImage * buttonImage = [UIImage imageNamed:@"mindtickle_logo"];
+        [self setBackgroundImage:buttonImage forState:UIControlStateNormal];
+        [self setTitle:@"" forState:UIControlStateNormal];
     }
     return self;
 }

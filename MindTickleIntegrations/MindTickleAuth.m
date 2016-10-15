@@ -96,7 +96,7 @@ static BOOL __openPending = NO;
     }];
 }
 + (BOOL) openMindTickle {
-    if(__domain == nil || __accessToken) {
+    if(__domain == nil || __accessToken == nil) {
         NSLog(@"unsufficiet parameters to open MindTickle");
         return NO;
     }
